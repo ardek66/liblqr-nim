@@ -1,17 +1,21 @@
-import lqr/lqr
+import private/lqr
 
 type
   Buffer* = object
-    impl*: ptr UncheckedArray[cuchar]
+    impl: ptr UncheckedArray[char]
     freed: bool
+  
   Carver* = object
-    impl*: ptr LqrCarver
+    impl: ptr LqrCarver
 
-proc `[]`*(buffer: Buffer, i: int): cuchar =
-  buffer.impl[i]
+template `->`(a: typed, T: typedesc): ptr T =
+  cast[ptr T](a.addr)
 
-proc `[]=`*(buffer: Buffer, i: int, data: cuchar) =
-  buffer.impl[i] = data
+proc `[]`*(buffer: Buffer, i: int): uint8 =
+  buffer.impl[i].uint8
+
+proc `[]=`*(buffer: Buffer, i: int, data: uint8) =
+  buffer.impl[i] = data.guchar
 
 proc newBuffer*(size: int): Buffer =
   var mem = g_try_malloc(size.gsize)
@@ -31,7 +35,7 @@ proc `=destroy`*(buffer: var Buffer) =
     buffer.impl = nil
     buffer.freed = true
 
-proc init*(carver: Carver, deltaX: int, rigidity: float) =
+proc init*(carver: Carver, deltaX: int = 1, rigidity: float = 0) =
   discard lqr_carver_init(carver.impl, deltaX.gint, rigidity.gfloat)
 
 proc resize*(carver: Carver, w1, h1: int) =
@@ -47,5 +51,5 @@ proc resetScan*(carver: Carver) =
   lqr_carver_scan_reset(carver.impl)
 
 proc scan*(carver: Carver, x, y: var int, rgb: var Buffer): bool =
-  result = (lqr_carver_scan(carver.impl, cast[ptr gint](x.addr), cast[ptr gint](y.addr), cast[ptr ptr guchar](rgb.impl.addr))).bool
+  result = (lqr_carver_scan(carver.impl, x->gint, y->gint, rgb->(ptr guchar))).bool
   rgb.freed = true

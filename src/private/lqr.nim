@@ -1,6 +1,5 @@
-import nimterop/[build, cimport]
-import strutils
-import glib2, posix
+import posix, strutils
+import nimterop/[build, cimport], glib2
 
 const
   baseDir = getProjectCacheDir("liblqr-nim")
@@ -31,11 +30,13 @@ cPlugin:
 cOverride:
   const
     G_LOG_LEVEL_MASK = not 3
+  
   type
     GSequenceNode = object
       n_nodes: gint
       parent, left, right: ptr GSequenceNode
       data: gpointer
+    
     pthread_mutex_t = Pthread_mutex
     pthread_t = Pthread
     tm = Tm
@@ -51,5 +52,4 @@ getHeader(
 
 cIncludeDir baseDir
 
-when not defined(lqrStatic):
-  cImport(lqrPath, recurse = true, dynlib = "lqrLPath", flags = flags)
+cImport(lqrPath, recurse = true, dynlib = "lqrLPath", flags = flags)
