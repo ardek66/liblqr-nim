@@ -11,7 +11,7 @@ const
 {.passL: glibLibs.}
 
 static:
-    cDebug()
+    #cDebug()
     cSkipSymbol @["G_DATE_DAY",
                   "G_DATE_YEAR",
                   "G_DATE_MONTH",
