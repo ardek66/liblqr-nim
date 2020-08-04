@@ -1,45 +1,25 @@
-import posix, strutils
-import nimterop/[build, cimport], glib2
+import strutils
+import nimterop/[build, cimport]
 
 const
   baseDir = getProjectCacheDir("liblqr-nim")
-  glibFlags = gorge("pkg-config --cflags glib-2.0")
-  glibLibs = gorge("pkg-config --libs glib-2.0")
-  flags = "-f:ast2 " & glibFlags
-
-{.passC: glibFlags.}
-{.passL: glibLibs.}
+  glibDirs = gorge("pkg-config --cflags glib-2.0").replace("-I", "").split(' ')
 
 static:
-    #cDebug()
-    cSkipSymbol @["G_DATE_DAY",
-                  "G_DATE_YEAR",
-                  "G_DATE_MONTH",
-                  "G_HOOK_FLAG_MASK",
-                  "G_CSET_a_2_z"]
+    cDebug()
     cAddStdDir()
-    
+
 cPlugin:
   import
     strutils
 
   proc onSymbol*(sym: var Symbol) {.exportc, dynlib.} =
-    sym.name = sym.name.strip(chars = {'_'}).replace("__", "_")
+    sym.name.removePrefix("gu")
+    sym.name.removePrefix("g")
+    sym.name = sym.name.strip(chars = {'_'}).replace("__", "_").replace("boolean", "bool")
 
-# Otherwise glib will complain
 cOverride:
-  const
-    G_LOG_LEVEL_MASK = not 3
-  
-  type
-    GSequenceNode = object
-      n_nodes: gint
-      parent, left, right: ptr GSequenceNode
-      data: gpointer
-    
-    pthread_mutex_t = Pthread_mutex
-    pthread_t = Pthread
-    tm = Tm
+  proc lqr_carver_scan_ext*(r: ptr LqrCarver, x, y: var int, rgb: var[char])
 
 getHeader(
   "lqr.h",
@@ -51,5 +31,6 @@ getHeader(
 )
 
 cIncludeDir baseDir
+cIncludeDir(glibDirs, exclude = true)
+cImport(lqrPath, recurse = true, dynLib = "lqrLPath")
 
-cImport(lqrPath, recurse = true, dynlib = "lqrLPath", flags = flags)
