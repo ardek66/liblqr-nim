@@ -1,13 +1,18 @@
-import nimBMP
+import nimPNG
 import ../src/lqr
 
-let bmp24 = loadBMP24("image.bmp", seq[uint8])
+var pix: PNGResult[seq[uint8]]
 
-var buffer = newBuffer(bmp24.width * bmp24.height * 3)
-buffer.load(bmp24.data)
+let res = loadPNG32(seq[uint8], "image.png")
+if res.isOk(): pix = res.get()
 
 let
-  carver = newCarver(buffer, bmp24.width, bmp24.height, 3)
-  newBMP = carver.resizedLiquid(bmp24.width div 2, bmp24.height div 2)
+  newWidth = pix.width div 2
+  newHeight = pix.height div 2
 
-saveBMP24("image_resized.bmp", newBMP, carver.width, carver.height)
+var carver = newCarver(pix.data, pix.width, pix.height, 3)
+let newPNG = carver.resizedLiquid(newWidth, newHeight)
+
+carver = newCarver(pix.data, pix.width div 2, pix.height div 2, 3)
+
+discard savePNG32("image_resized.png", newPNG, newWidth, newHeight)
