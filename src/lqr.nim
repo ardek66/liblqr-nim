@@ -64,8 +64,8 @@ proc resizedLiquid*[T: ColorTypes](carver: Carver[T], w, h: int): seq[T] =
   carver.resize w, h
   
   for x, y, rgb in carver.scan:
-    for i, c in rgb:
-      result[(y * w + x) * carver.channels + i] = c
+    for i in 0..<carver.channels:
+      result[(y * w + x) * carver.channels + i] = rgb[i]
 
 proc resizedLiquid*[T: ColorRGBAny](img: var Image[T], w, h: int) =
   let carver = newCarver(cast[seq[componentType(T)]](img.data), img.width, img.height, T.len)
