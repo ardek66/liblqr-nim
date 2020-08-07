@@ -18,9 +18,6 @@ cPlugin:
     sym.name.removePrefix("g")
     sym.name = sym.name.strip(chars = {'_'}).replace("__", "_").replace("boolean", "bool")
 
-cOverride:
-  proc lqr_carver_scan_ext*(r: ptr LqrCarver, x, y: var int, rgb: var[char])
-
 getHeader(
   "lqr.h",
   giturl = "https://github.com/carlobaldassi/liblqr",
@@ -32,5 +29,5 @@ getHeader(
 
 cIncludeDir baseDir
 cIncludeDir(glibDirs, exclude = true)
-cImport(lqrPath, recurse = true, dynLib = "lqrLPath")
+cImport(lqrPath, recurse = true, dynLib = "lqrLPath", flags = "-E_ -F_")
 
