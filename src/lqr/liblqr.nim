@@ -30,7 +30,6 @@ getHeader(
 cIncludeDir baseDir
 cIncludeDir(glibDirs, exclude = true)
 
-
 {.passL: "-lglib-2.0"}
 
 when not defined(lqrStatic):

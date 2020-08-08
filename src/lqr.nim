@@ -1,6 +1,6 @@
 import sequtils
 import imageman
-import private/lqr
+import lqr/liblqr
 
 type
   ColorTypes = ColorComponent | uint16
