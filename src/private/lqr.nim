@@ -23,11 +23,18 @@ getHeader(
   giturl = "https://github.com/carlobaldassi/liblqr",
   dlurl = "http://liblqr.wdfiles.com/local--files/en:download-page/liblqr-1-$1.tar.bz2",
   outdir = baseDir,
-  conFlags = "--disable-legacy-macros",
-  altnames = "liblqr-1"
+  conFlags = "--disable-legacy-macros --enable-static",
+  altNames = "lqr-1"
 )
 
 cIncludeDir baseDir
 cIncludeDir(glibDirs, exclude = true)
-cImport(lqrPath, recurse = true, dynLib = "lqrLPath", flags = "-E_ -F_")
+
+
+{.passL: "-lglib-2.0"}
+
+when not defined(lqrStatic):
+  cImport(lqrPath, recurse = true, dynLib = "lqrLPath")
+else:
+  cImport(lqrPath, recurse = true)
 
